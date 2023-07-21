@@ -37,22 +37,4 @@ pub fn setup_camera(mut commands: Commands, theme: Res<Theme>) {
         min_y: Some(-max_size / 2.),
         max_y: Some(max_size / 2.),
     });
-    let mut effects_camera = Camera2dBundle {
-        camera: Camera {
-            order: 2,
-            is_active: false,
-            ..default()
-        },
-        camera_2d: Camera2d {
-            clear_color: ClearColorConfig::None,
-        },
-        ..default()
-    };
-    effects_camera.projection.scale = 1.0;
-    effects_camera.projection.scaling_mode = ScalingMode::FixedVertical(1.);
-    commands.spawn((
-        effects_camera,
-        EffectsCamera,
-        RenderLayers::from_layers(&[2]),
-    ));
 }

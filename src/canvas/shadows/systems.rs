@@ -52,7 +52,7 @@ pub fn update_shadows(
     velo_node_query: Query<(&GlobalTransform, &Children), With<VeloNode>>,
     velo_shape_query: Query<&Children, With<VeloShape>>,
     shadows_query: Query<&Mesh2dHandle, With<Shadow>>,
-    cosmic_query: Query<&CosmicEdit, With<RawText>>,
+    cosmic_query: Query<(&CosmicEdit, &RawText), With<RawText>>,
 ) {
     for (global_transform, children) in velo_node_query.iter() {
         let mut velo_shape_children = None;
@@ -77,8 +77,10 @@ pub fn update_shadows(
             if let Ok(cosmic_edit) = cosmic_query.get(*velo_shape_child) {
                 let mesh = meshes.get_mut(&mesh_handle.0).unwrap();
                 let translation = global_transform.translation();
-                let width = cosmic_edit.width;
-                let height = cosmic_edit.height;
+                let width = cosmic_edit.0.width;
+                let height = cosmic_edit.0.height;
+
+                info!("text: {}", cosmic_edit.1.last_text.clone());
 
                 let half_width = 1.25 * width / 2.0;
                 let half_height = 1.25 * height / 2.0;

@@ -109,7 +109,7 @@ pub fn velo_light() -> Theme {
         node_shadow: Color::BLACK.with_a(0.5),
         node_width: 144.,
         ok_cancel_bg: Color::rgb(245.0 / 255.0, 245.0 / 255.0, 245.0 / 255.0),
-        paper_node_bg: Color::rgb(1., 236. / 255., 172. / 255.),
+        paper_node_bg: Color::rgb(1., 236. / 255., 172. / 255.).with_a(0.5),
         resize_marker_size: 10.,
         search_box_bg: Color::WHITE,
         search_box_border: Color::GRAY.with_a(0.5),

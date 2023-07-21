@@ -187,10 +187,10 @@ pub fn spawn_sprite_node(
         }
     }
 
-    if item_meta.node_type == NodeType::Paper {
+    // if item_meta.node_type == NodeType::Paper {
         let shadow: Entity = spawn_shadow(commands, materials, meshes, theme);
         commands.entity(top).add_child(shadow);
-    }
+    // }
 
     let arrow_marker_1 = spawn_arrow_marker(
         commands,

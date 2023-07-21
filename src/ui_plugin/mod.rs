@@ -1,6 +1,8 @@
 use async_channel::{Receiver, Sender};
 use bevy::prelude::*;
 
+use bevy::render::view::VisibilitySystems;
+use bevy::transform::TransformSystem;
 use serde::{Deserialize, Serialize};
 
 use crate::resources::AppState;
@@ -299,7 +301,12 @@ impl Plugin for UiPlugin {
                 change_theme,
                 enable_drawing_mode,
                 drawing,
+                debug_system,
             ),
+        );
+        app.add_systems(
+            PostUpdate,
+            debug_system.after(VisibilitySystems::CheckVisibility),
         );
         app.add_systems(Update, (set_focused_entity, clickable_links).chain());
 
