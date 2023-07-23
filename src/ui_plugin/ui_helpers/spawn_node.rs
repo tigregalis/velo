@@ -56,7 +56,11 @@ pub fn spawn_sprite_node(
                     translation: pos,
                     ..default()
                 },
-                ..Default::default()
+                sprite: Sprite {
+                    color: theme.node_found_color,
+                    ..default()
+                },
+                ..default()
             },
             VeloNode { id: item_meta.id },
         ))
@@ -264,7 +268,7 @@ fn spawn_resize_marker(
     let resize_marker = commands
         .spawn(SpriteBundle {
             sprite: Sprite {
-                color: Color::NONE,
+                color: Color::BLACK,
                 custom_size: Some(Vec2::new(
                     theme.resize_marker_size,
                     theme.resize_marker_size,
