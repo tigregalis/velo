@@ -30,26 +30,28 @@ impl Plugin for ShadowsPlugin {
 pub struct CustomShadowMaterial {
     #[uniform(0)]
     color: Color,
+    #[uniform(0)]
+    size: Vec2,
 }
 
 impl Material2d for CustomShadowMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/shadows.wgsl".into()
     }
-    fn vertex_shader() -> ShaderRef {
-        "shaders/shadows.wgsl".into()
-    }
+    // fn vertex_shader() -> ShaderRef {
+    //     "shaders/shadows.wgsl".into()
+    // }
 
-    fn specialize(
-        descriptor: &mut RenderPipelineDescriptor,
-        layout: &MeshVertexBufferLayout,
-        _key: Material2dKey<Self>,
-    ) -> Result<(), SpecializedMeshPipelineError> {
-        let vertex_layout = layout.get_layout(&[
-            Mesh::ATTRIBUTE_POSITION.at_shader_location(0),
-            Mesh::ATTRIBUTE_UV_0.at_shader_location(1),
-        ])?;
-        descriptor.vertex.buffers = vec![vertex_layout];
-        Ok(())
-    }
+    // fn specialize(
+    //     descriptor: &mut RenderPipelineDescriptor,
+    //     layout: &MeshVertexBufferLayout,
+    //     _key: Material2dKey<Self>,
+    // ) -> Result<(), SpecializedMeshPipelineError> {
+    //     let vertex_layout = layout.get_layout(&[
+    //         Mesh::ATTRIBUTE_POSITION.at_shader_location(0),
+    //         Mesh::ATTRIBUTE_UV_0.at_shader_location(1),
+    //     ])?;
+    //     descriptor.vertex.buffers = vec![vertex_layout];
+    //     Ok(())
+    // }
 }

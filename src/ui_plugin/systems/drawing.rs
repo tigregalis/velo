@@ -126,7 +126,7 @@ pub fn debug_system(
 ) {
     for (transform, mut visibility) in shadows_query.iter_mut() {
         let transform = transform.affine().translation.truncate();
-        eprintln!("ComputedVisibility: {:?}", visibility);
+        // eprintln!("ComputedVisibility: {:?}", visibility);
         commands.spawn(SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(Vec2::new(10.0, 10.0)),

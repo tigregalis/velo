@@ -1,6 +1,6 @@
 use bevy::{
     prelude::*,
-    render::{mesh::Indices, render_resource::PrimitiveTopology},
+    render::{mesh::Indices, render_resource::PrimitiveTopology, view::NoFrustumCulling},
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 use bevy_cosmic_edit::CosmicEdit;
@@ -36,6 +36,7 @@ pub fn spawn_shadow(
             mesh: meshes.add(mesh).into(),
             material: materials.add(CustomShadowMaterial {
                 color: theme.shadow,
+                size: Vec2::new(100.0, 100.0),
             }),
             transform: Transform {
                 translation: Vec3::new(0.0, 0.0, 0.09),
@@ -44,26 +45,36 @@ pub fn spawn_shadow(
             ..Default::default()
         })
         .insert(Shadow)
+        // .insert(NoFrustumCulling)
         .id()
 }
 
 pub fn update_shadows(
     mut meshes: ResMut<Assets<Mesh>>,
-    velo_node_query: Query<(&GlobalTransform, &Children), With<VeloNode>>,
+    velo_node_query: Query<(&Transform, &GlobalTransform, &Children), With<VeloNode>>,
     velo_shape_query: Query<&Children, With<VeloShape>>,
-    shadows_query: Query<&Mesh2dHandle, With<Shadow>>,
+    shadows_query: Query<(&Transform, &GlobalTransform, &Mesh2dHandle), With<Shadow>>,
     cosmic_query: Query<(&CosmicEdit, &RawText), With<RawText>>,
 ) {
-    for (global_transform, children) in velo_node_query.iter() {
+    for (transform, global_transform, children) in velo_node_query.iter() {
         let mut velo_shape_children = None;
         let mut mesh_handle = None;
+        let mut shadow_global = None;
+        let mut shadow_transform = None;
 
         for child in children {
             if let Ok(velo_shape_component) = velo_shape_query.get(*child) {
                 velo_shape_children = Some(velo_shape_component);
             }
-            if let Ok(mesh_handle_component) = shadows_query.get(*child) {
+            if let Ok((
+                shadow_transform_component,
+                shadow_global_transform_component,
+                mesh_handle_component,
+            )) = shadows_query.get(*child)
+            {
                 mesh_handle = Some(mesh_handle_component);
+                shadow_global = Some(shadow_global_transform_component);
+                shadow_transform = Some(shadow_transform_component);
             }
         }
 
@@ -73,6 +84,8 @@ pub fn update_shadows(
 
         let mesh_handle = mesh_handle.unwrap();
         let velo_shape_children = velo_shape_children.unwrap();
+        let shadow_global = shadow_global.unwrap();
+        let shadow_transform = shadow_transform.unwrap();
         for velo_shape_child in velo_shape_children.iter() {
             if let Ok(cosmic_edit) = cosmic_query.get(*velo_shape_child) {
                 let mesh = meshes.get_mut(&mesh_handle.0).unwrap();
@@ -80,45 +93,51 @@ pub fn update_shadows(
                 let width = cosmic_edit.0.width;
                 let height = cosmic_edit.0.height;
 
-                info!("text: {}", cosmic_edit.1.last_text.clone());
+                // info!("text: {}", cosmic_edit.1.last_text.clone());
+                // info!("parent global = {:?}", global_transform.translation());
+                // info!("shadow global = {:?}", shadow_global.translation());
+                // info!("parent local = {:?}", transform.translation);
+                // info!("shadow local = {:?}", shadow_transform.translation);
 
                 let half_width = 1.25 * width / 2.0;
                 let half_height = 1.25 * height / 2.0;
 
-                let offset_x = 0.04 * width;
-                let offset_y = 0.04 * height;
+                let offset_x = width;
+                let offset_y = height;
 
                 let vertices: Vec<[f32; 3]> = [
                     [
-                        translation.x - half_width - offset_x,
-                        translation.y - half_height - offset_y,
+                        0.0 - half_width - offset_x,
+                        0.0 - half_height - offset_y,
                         0.0,
                     ],
                     [
-                        translation.x + half_width - offset_x,
-                        translation.y - half_height - offset_y,
+                        0.0 + half_width - offset_x,
+                        0.0 - half_height - offset_y,
                         0.0,
                     ],
                     [
-                        translation.x + half_width - offset_x,
-                        translation.y + half_height - offset_y,
+                        0.0 + half_width - offset_x,
+                        0.0 + half_height - offset_y,
                         0.0,
                     ],
                     [
-                        translation.x - half_width - offset_x,
-                        translation.y + half_height - offset_y,
+                        0.0 - half_width - offset_x,
+                        0.0 + half_height - offset_y,
                         0.0,
                     ],
                 ]
                 .iter()
                 .map(|&v| [v[0], v[1], v[2]])
                 .collect();
+                // info!("vertices: {:?}", vertices);
 
                 let indices: Vec<u32> = vec![0, 1, 2, 0, 2, 3];
 
                 let uvs: Vec<[f32; 2]> = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]]
                     .iter()
                     .map(|uv| [unnormalize_uv(uv[0], width), unnormalize_uv(uv[1], height)])
+                    // .map(|uv| [uv[0], uv[1]])
                     .collect();
 
                 mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
